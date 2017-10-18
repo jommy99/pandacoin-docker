@@ -4,47 +4,39 @@ ENV PUBLISHER=DigitalPandacoin \
     PROJECT=pandacoin \
     COMMIT=e2b4390a9f595f140c81e6db29fcb42d4a6270c0 \
     PANDACOIN_DATA=/home/pandacoin/.pandacoin \
-    GOSU_VERSION=1.9
+    PANDACOIN_PACKAGES="wget build-essential libssl-dev libdb++-dev libboost-all-dev libminiupnpc-dev"
 
 RUN useradd -r pandacoin
 
-RUN apt-get update && apt-get install -y \
-      curl \
-      gnupg \
-      wget \
-      build-essential \
-      libssl-dev \
-      libdb++-dev \
-      libboost-all-dev \
-      libminiupnpc-dev \
-      libdb++-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN set -ex \
-  && for key in \
-    B42F6819007F00F88E364FD4036A9C25BF357DD4 \
-  ; do \
-    gpg --keyserver pgp.mit.edu --recv-keys "$key" || \
-    gpg --keyserver keyserver.pgp.com --recv-keys "$key" || \
-    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key" || \
-    gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$key" ; \
-  done
-
-RUN curl -o /usr/local/bin/gosu -fSL https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$(dpkg --print-architecture) \
-    && curl -o /usr/local/bin/gosu.asc -fSL https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$(dpkg --print-architecture).asc \
-    && gpg --verify /usr/local/bin/gosu.asc \
-    && rm /usr/local/bin/gosu.asc \
-    && chmod +x /usr/local/bin/gosu
-
-RUN cd /tmp \
+RUN apt-get update && apt-get install -y ${PANDACOIN_PACKAGES} \
+    && cd /tmp \
     && wget -O - https://github.com/${PUBLISHER}/${PROJECT}/archive/${COMMIT}.tar.gz | tar -xz \
     && cd ${PROJECT}-${COMMIT}/src \
     && chmod +x leveldb/build_detect_platform \
     && make -j9 -f makefile.unix \
     && strip pandacoind \
     && cp pandacoind /usr/local/bin/ \
-    && rm -rf /tmp/*
+    && apt-get remove --purge -y ${PANDACOIN_PACKAGES} $(apt-mark showauto) \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ENV GOSU_VERSION=1.9
+
+RUN apt-get update && apt-get install -y curl \
+    && for key in \
+         B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+       ; do \
+         gpg --keyserver pgp.mit.edu --recv-keys "$key" || \
+         gpg --keyserver keyserver.pgp.com --recv-keys "$key" || \
+         gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key" || \
+         gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$key" ; \
+       done \
+    && curl -o /usr/local/bin/gosu -fSL https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$(dpkg --print-architecture) \
+    && curl -o /usr/local/bin/gosu.asc -fSL https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$(dpkg --print-architecture).asc \
+    && gpg --verify /usr/local/bin/gosu.asc \
+    && rm /usr/local/bin/gosu.asc \
+    && chmod +x /usr/local/bin/gosu \
+    && apt-get remove --purge -y curl $(apt-mark showauto) \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.gnupg
 
 VOLUME ["/home/pandacoin/.pandacoin"]
 
