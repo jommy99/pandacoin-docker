@@ -3,12 +3,17 @@ FROM ubuntu:trusty
 ENV PUBLISHER=DigitalPandacoin \
     PROJECT=pandacoin \
     COMMIT=e2b4390a9f595f140c81e6db29fcb42d4a6270c0 \
-    PANDACOIN_DATA=/home/pandacoin/.pandacoin \
-    PANDACOIN_PACKAGES="wget build-essential libssl-dev libdb++-dev libboost-all-dev libminiupnpc-dev"
+    PANDACOIN_DATA=/home/pandacoin/.pandacoin
 
 RUN useradd -r pandacoin
 
-RUN apt-get update && apt-get install -y ${PANDACOIN_PACKAGES} \
+RUN apt-get update && apt-get install -y \
+      wget \
+      build-essential \
+      libssl-dev \
+      libdb++-dev \
+      libboost-all-dev \
+      libminiupnpc-dev \
     && cd /tmp \
     && wget -O - https://github.com/${PUBLISHER}/${PROJECT}/archive/${COMMIT}.tar.gz | tar -xz \
     && cd ${PROJECT}-${COMMIT}/src \
@@ -16,7 +21,10 @@ RUN apt-get update && apt-get install -y ${PANDACOIN_PACKAGES} \
     && make -j9 -f makefile.unix \
     && strip pandacoind \
     && cp pandacoind /usr/local/bin/ \
-    && apt-get remove --purge -y ${PANDACOIN_PACKAGES} $(apt-mark showauto) \
+    && apt-get remove --purge -y \
+      wget \
+      build-essential \
+      $(apt-mark showauto) \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV GOSU_VERSION=1.9
