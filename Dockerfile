@@ -1,14 +1,16 @@
 FROM ubuntu:trusty
 
-RUN useradd -r pandacoin
-
+ENV PUBLISHER=DigitalPandacoin
+ENV PROJECT=pandacoin
+ENV COMMIT=e2b4390a9f595f140c81e6db29fcb42d4a6270c0
 ENV GOSU_VERSION=1.9
+
+RUN useradd -r pandacoin
 
 RUN apt-get update && apt-get install -y \
       curl \
       gnupg \
       wget \
-      unzip \
       build-essential \
       libssl-dev \
       libdb++-dev \
@@ -35,14 +37,13 @@ RUN curl -o /usr/local/bin/gosu -fSL https://github.com/tianon/gosu/releases/dow
     && chmod +x /usr/local/bin/gosu
 
 RUN cd /tmp \
-    && wget https://github.com/DigitalPandacoin/pandacoin/archive/master.zip \
-    && unzip master.zip \
-    && cd pandacoin-master/src \
+    && wget -O - https://github.com/${PUBLISHER}/${PROJECT}/archive/${COMMIT}.tar.gz | tar -xz \
+    && cd ${PROJECT}-${COMMIT}/src \
     && chmod +x leveldb/build_detect_platform \
     && make -j9 -f makefile.unix \
     && strip pandacoind \
     && cp pandacoind /usr/local/bin/ \
-    && rm -rf /tmp/pandacoin-master master.zip
+    && rm -rf /tmp/*
 
 ENV PANDACOIN_DATA=/home/pandacoin/.pandacoin
 
