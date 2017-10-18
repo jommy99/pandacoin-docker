@@ -1,9 +1,10 @@
 FROM ubuntu:trusty
 
-ENV PUBLISHER=DigitalPandacoin
-ENV PROJECT=pandacoin
-ENV COMMIT=e2b4390a9f595f140c81e6db29fcb42d4a6270c0
-ENV GOSU_VERSION=1.9
+ENV PUBLISHER=DigitalPandacoin \
+    PROJECT=pandacoin \
+    COMMIT=e2b4390a9f595f140c81e6db29fcb42d4a6270c0 \
+    PANDACOIN_DATA=/home/pandacoin/.pandacoin \
+    GOSU_VERSION=1.9
 
 RUN useradd -r pandacoin
 
@@ -44,8 +45,6 @@ RUN cd /tmp \
     && strip pandacoind \
     && cp pandacoind /usr/local/bin/ \
     && rm -rf /tmp/*
-
-ENV PANDACOIN_DATA=/home/pandacoin/.pandacoin
 
 VOLUME ["/home/pandacoin/.pandacoin"]
 
