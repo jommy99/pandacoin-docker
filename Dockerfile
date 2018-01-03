@@ -2,7 +2,7 @@ FROM ubuntu:trusty
 
 ENV PUBLISHER=DigitalPandacoin \
     PROJECT=pandacoin \
-    COMMIT=e2b4390a9f595f140c81e6db29fcb42d4a6270c0 \
+    COMMIT=3ab09fd9ca5b8f42d5e99be57eca420e307a5093 \
     PANDACOIN_DATA=/home/pandacoin/.pandacoin
 
 RUN useradd -r pandacoin
