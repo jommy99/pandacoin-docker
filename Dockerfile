@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
     && wget -O - https://github.com/${PUBLISHER}/${PROJECT}/archive/${COMMIT}.tar.gz | tar -xz \
     && cd ${PROJECT}-${COMMIT}/src \
     && chmod +x leveldb/build_detect_platform \
-    && make -j9 -f makefile.unix \
+    && make -j$(nproc) -f makefile.unix \
     && strip pandacoind \
     && cp pandacoind /usr/local/bin/ \
     && apt-get remove --purge -y \
