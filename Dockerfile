@@ -12,18 +12,28 @@ RUN apt-get update && apt-get install -y \
       build-essential \
       libssl-dev \
       libdb++-dev \
-      libboost-all-dev \
+      libboost-system-dev \
+      libboost-filesystem-dev \
+      libboost-program-options-dev \
+      libboost-thread-dev \
       libminiupnpc-dev \
     && cd /tmp \
     && wget -O - https://github.com/${PUBLISHER}/${PROJECT}/archive/${COMMIT}.tar.gz | tar -xz \
     && cd ${PROJECT}-${COMMIT}/src \
     && chmod +x leveldb/build_detect_platform \
-    && make -j$(nproc) -f makefile.unix \
+    && STATIC=1 make -j$(nproc) -f makefile.unix \
     && strip pandacoind \
     && cp pandacoind /usr/local/bin/ \
     && apt-get remove --purge -y \
       wget \
       build-essential \
+      libssl-dev \
+      libdb++-dev \
+      libboost-system-dev \
+      libboost-filesystem-dev \
+      libboost-program-options-dev \
+      libboost-thread-dev \
+      libminiupnpc-dev \
       $(apt-mark showauto) \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
